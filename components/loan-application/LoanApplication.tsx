@@ -70,7 +70,7 @@ export default function LoanApplication() {
         />
         <button 
           className="p-2"
-          onClick={() => router.push('/login')}
+          onClick={() => router.push('/')}
         >
           <X className="h-6 w-6 text-gray-500" />
         </button>
