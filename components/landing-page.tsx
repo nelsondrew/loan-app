@@ -4,7 +4,9 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { FileText, Calendar, Wallet, Clock, Star, CreditCard } from 'lucide-react'
-import LottiePlayer from './lottie-player'
+import dynamic from 'next/dynamic'
+const LottiePlayer = dynamic(() => import('./lottie-player'), { ssr: false });
+
 
 
 export default function LandingPage() {
