@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, KeyboardEvent, useEffect, useCallback } from 'react'
-import { X, Check, AlertCircle, Upload, RefreshCw, Trash2 } from 'lucide-react'
+import { X, Check, AlertCircle, Upload, RefreshCw, Trash2, Loader2 } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -70,7 +70,8 @@ export default function LoanApplication() {
   const [currentCityError, setCurrentCityError] = useState(false)
   const [currentLoans, setCurrentLoans] = useState('')
   const [propertyStatus, setPropertyStatus] = useState<PropertyStatus | ''>('')
-  const [propertyStatusError, setPropertyStatusError] = useState(false)
+  const [propertyStatusError, setPropertyStatusError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const steps = ['Verify Details', 'Get Offer', 'Get Money']
 
@@ -250,12 +251,12 @@ export default function LoanApplication() {
     stage = 0,
     applicantDetails,
   }: {
-    stage : number;
-    applicantDetails : ApplicantDetails
+    stage: number;
+    applicantDetails: ApplicantDetails
   }) => {
     // if the stage value is 1
     // then we have the pan details and we should go to stage 1
-    if(stage === 1) {
+    if (stage === 1) {
       setIsPhoneVerified(true);
       setIsPanValid(true);
       setPanName(applicantDetails.panName);
@@ -263,6 +264,7 @@ export default function LoanApplication() {
       setDateOfBirth(new Date(applicantDetails.dob));
       setShowAadhaar(true);
     }
+    setIsLoading(false);
   }
 
   return (
@@ -332,6 +334,7 @@ export default function LoanApplication() {
                 handleOTPVerify={handleOTPVerify}
                 setIsPhoneVerified={setIsPhoneVerified}
                 simulateStage={simulateStage}
+                setIsLoading={setIsLoading}
               />
               <PanDetailsInput
                 showAadhaar={showAadhaar}
@@ -694,6 +697,15 @@ export default function LoanApplication() {
         onClose={() => setShowOTP(false)}
         onVerify={handleOTPVerify}
       />
+
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <p className="text-sm text-gray-600">Processing...</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
