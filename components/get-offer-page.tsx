@@ -15,8 +15,8 @@ export default function GetOfferPage() {
     <div className="min-h-screen bg-white">
       <div className="p-4 flex items-center justify-between border-b">
         <Image
-          src="https://picsum.photos/seed/firstmoney/120/40"
-          alt="First Money Logo"
+          src="/aasra_vikas_small.png"
+          alt="Aasra Vikas Logo"
           width={120}
           height={40}
           className="h-10 w-auto"
@@ -50,7 +50,7 @@ export default function GetOfferPage() {
           </ul>
         </div>
 
-        <Button 
+        <Button
           onClick={() => router.push('/loan-details')}
           className="w-full bg-[#194DBE] hover:bg-[#194DBE]/90 text-white rounded-full py-6 text-lg"
         >
