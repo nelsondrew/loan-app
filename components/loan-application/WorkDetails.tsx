@@ -71,10 +71,10 @@ export function WorkDetails({ onSubmit }: WorkDetailsProps) {
   }
 
   const handleReupload = (index: number) => () => {
-    const fileInput = document.getElementById(`salary-slip-${index}`) as HTMLInputElement
-    if (fileInput) {
-      fileInput.click()
-    }
+    // const fileInput = document.getElementById(`salary-slip-${index}`) as HTMLInputElement
+    // if (fileInput) {
+    //   fileInput.click()
+    // }
   }
 
   const handleDelete = (index: number) => () => {
