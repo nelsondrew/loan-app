@@ -12,7 +12,7 @@ type AadharMobileInputProps = {
   showOTP: boolean;
   showWorkDetails: boolean;
   setShowOTP: Dispatch<SetStateAction<boolean>>;
-  setIsPhoneVerified:  Dispatch<SetStateAction<boolean>>;
+  setIsPhoneVerified: Dispatch<SetStateAction<boolean>>;
 }
 
 const AadharMobileInput = ({
@@ -22,10 +22,10 @@ const AadharMobileInput = ({
   setShowOTP = () => { },
   showOTP = false,
   showWorkDetails = false,
-  setIsPhoneVerified = () => {},
+  setIsPhoneVerified = () => { },
 }: AadharMobileInputProps) => {
-  const [mobileError , setMobileError] = useState(null);
-  const [otpError , setOtpError] = useState(null);
+  const [mobileError, setMobileError] = useState(null);
+  const [otpError, setOtpError] = useState(null);
 
   const handleAadharMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isPhoneVerified) {
@@ -35,23 +35,31 @@ const AadharMobileInput = ({
 
   const handleShowOTP = useCallback(async () => {
     if (mobileNumber.length === 10 && !isPhoneVerified) {
-      // const result = await sendOtp(mobileNumber);
-      // if(result?.error) {
-      //   setMobileError(result?.error);
-      //   return;
-      // } else {
-      //   setMobileError(null);
-      // }
+      const result = await sendOtp(`+91${mobileNumber}`);
+      if (result?.error) {
+        setMobileError(result?.error);
+        return;
+      }
+
+      if (result?.mobileNumberVerified) {
+        setShowOTP(false);
+        setMobileError(null);
+        setOtpError(null);
+        setIsPhoneVerified(true);
+        return;
+      }
+
+      setMobileError(null);
       setShowOTP(true)
     }
   }, [mobileNumber, isPhoneVerified])
 
 
-    const handleKeyPress = (e : any) => {
-      if (e.key === 'Enter') {
-        handleShowOTP()
-      }
+  const handleKeyPress = (e: any) => {
+    if (e.key === 'Enter') {
+      handleShowOTP()
     }
+  }
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -63,15 +71,12 @@ const AadharMobileInput = ({
 
 
   const handleOTPVerify = async (otp: string) => {
-    // const result = await verifyOtp(mobileNumber, otp);
-    // console.log(result);
-    // if(result?.error) {
-    //   setOtpError(result?.error);
-    //   return;
-    // } else {
-    //   setOtpError(null);
-    // }
-    console.log('OTP Verified:', otp)
+    const result = await verifyOtp(mobileNumber, otp);
+    if (result?.error) {
+      setOtpError(result?.error);
+      return;
+    }
+    setOtpError(null);
     setShowOTP(false)
     setIsPhoneVerified(true)
   }
