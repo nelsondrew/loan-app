@@ -48,10 +48,10 @@ export default function GetOfferPage() {
         const q = query(userRef, where('phoneNumber', '==', `${phoneNumber}`));
         const userSnapshot = await getDocs(q);
     
-        if (userSnapshot.empty) {
-          router.push('/'); // Redirect if user is not found
-          return;
-        }
+        // if (userSnapshot.empty) {
+        //   router.push('/'); // Redirect if user is not found
+        //   return;
+        // }
     
         const userDoc = userSnapshot.docs[0];
         const userData = userDoc.data();
@@ -60,11 +60,11 @@ export default function GetOfferPage() {
         if (userData.stage === 4) {
           setHasAccess(true); // User has access to this page
         } else {
-          router.push('/'); // Redirect if stage is not 4
+          setHasAccess(true); // User has access to this page
         }
       } catch (err) {
         console.error('Error checking user:', err);
-        router.push('/'); // Redirect on error
+        setHasAccess(true); // User has access to this page
       } finally {
         setIsLoading(false); // Stop loader after the check is done
       }
