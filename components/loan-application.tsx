@@ -16,10 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { aadhaarDetailsApi, additionalDetailsApi, panDetailsApi, sendOtp, verifyOtp } from "@/api"
+import { aadhaarDetailsApi, additionalDetailsApi, panDetailsApi, sendOtp, verifyOtp, workDetailsApi } from "@/api"
 import AadharMobileInput from './loan-application-components/aadhar-mobile'
 import PanDetailsInput from './loan-application-components/pan-details'
 import { ApplicantDetails } from '@/types'
+import { getDownloadURL, ref, storage, uploadBytes } from "../firebase/index"
 
 const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const aadhaarRegex = /^\d{12}$/;
@@ -157,14 +158,9 @@ export default function LoanApplication() {
     return new Intl.NumberFormat('en-IN').format(parseInt(number))
   }
 
-  const handleWorkDetailsSubmit = (e: React.FormEvent) => {
+  const handleWorkDetailsSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
     let hasError = false
-
-    if (!isWorkEmailVerified) {
-      setWorkEmailError(true)
-      hasError = true
-    }
 
     if (!emailRegex.test(workEmail)) {
       setWorkEmailError(true)
@@ -197,33 +193,59 @@ export default function LoanApplication() {
 
     if (hasError) return
 
-    console.log({
-      workEmail,
-      officeAddress,
-      salarySlips,
-      personalAddress,
-      currentCity,
-      currentLoans,
-      propertyStatus
-    })
+
+    const uploadUrls = await handleUploadToFireBase();
+    const result = await workDetailsApi({
+      workemailAddress: workEmail,
+      officeAddress: officeAddress,
+      uploadUrls: uploadUrls,
+      personalAddress: personalAddress,
+      currentCity: currentCity,
+      currentOngoingLoans: currentLoans,
+      stayingIn: propertyStatus,
+      phoneNumber: mobileNumber,
+    });
     router.push('/get-offer')
     // Handle final submission
   }
+  
 
   const handleFileUpload = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const newSalarySlips = [...salarySlips]
       newSalarySlips[index] = { file, uploaded: true, fileName: file.name }
-      setSalarySlips(newSalarySlips)
+      setSalarySlips(newSalarySlips);
     }
   }
 
+  const handleUploadToFireBase = async () => {
+    const files = salarySlips.map((item) => item?.file).filter((item) => typeof item !== 'undefined');
+    const uploadedFiles = [];
+    for (const file of files) {
+      try {
+        const storageRef = ref(storage, `salary-slips/${file.name}`);
+        await uploadBytes(storageRef, file); // Upload the file
+        const url = await getDownloadURL(storageRef); // Get the file's download URL
+        uploadedFiles.push(url);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
+    }
+    return uploadedFiles
+  };
+
+  useEffect(() => {
+    console.log("current salary slips", salarySlips)
+  },[salarySlips])
+
   const handleReupload = (index: number) => () => {
-    // const fileInput = document.getElementById(`salary-slip-${index}`) as HTMLInputElement
-    // if (fileInput) {
-    //   fileInput.click()
-    // }
+    if(typeof document !== 'undefined') {
+      const fileInput = document.getElementById(`salary-slip-${index}`) as HTMLInputElement
+      if (fileInput) {
+        fileInput.click()
+      }
+    }
   }
 
   const handleDelete = (index: number) => (e) => {
@@ -284,6 +306,9 @@ export default function LoanApplication() {
       setShowAdditionalDetails(false);
       setShowWorkDetails(true);
       if(stage === 3) return;
+      if(stage === 4) {
+        router.push('/get-offer')
+      }
     };
 
     executeStageSteps();
@@ -480,11 +505,11 @@ export default function LoanApplication() {
                           setWorkEmail(e.target.value)
                           setWorkEmailError(false)
                         }}
-                        onBlur={() => {
-                          if (emailRegex.test(workEmail) && !isWorkEmailVerified) {
-                            setShowOTP(true)
-                          }
-                        }}
+                        // onBlur={() => {
+                        //   if (emailRegex.test(workEmail) && !isWorkEmailVerified) {
+                        //     setShowOTP(true)
+                        //   }
+                        // }}
                         className={`border-[#80B7EE] focus:ring-[#194DBE] focus:border-[#194DBE] ${isWorkEmailVerified ? 'bg-gray-50 text-gray-500' : ''
                           }`}
                         placeholder="Enter your work email"
@@ -716,12 +741,12 @@ export default function LoanApplication() {
         </div>
       </form>
 
-      <EmailOTPVerification
+      {/* <EmailOTPVerification
         email={workEmail}
         isOpen={showOTP && showWorkDetails}
         onClose={() => setShowOTP(false)}
         onVerify={handleOTPVerify}
-      />
+      /> */}
 
       {isLoading && (
         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center rounded-lg">

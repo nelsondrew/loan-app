@@ -3,6 +3,7 @@ import { AlertCircle, Check } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { OTPVerification } from "../otp-verification";
 import { sendOtp, verifyOtp } from "@/api";
+import { setPhoneNumberCookie } from "@/lib/utils";
 
 type AadharMobileInputProps = {
   mobileNumber: string;
@@ -48,6 +49,7 @@ const AadharMobileInput = ({
       }
 
       if (result?.mobileNumberVerified) {
+        setPhoneNumberCookie(mobileNumber);
         setShowOTP(false);
         setMobileError(null);
         setOtpError(null);
@@ -82,6 +84,7 @@ const AadharMobileInput = ({
       setOtpError(result?.error);
       return;
     }
+    setPhoneNumberCookie(mobileNumber)
     setOtpError(null);
     setShowOTP(false)
     setIsPhoneVerified(true)
