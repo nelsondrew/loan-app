@@ -1,4 +1,4 @@
-const BASE_URL = 'https://nodejs-gcp-app-kr63km7dxa-uc.a.run.app'
+const BASE_URL = 'http://localhost:8080'
 
 export async function sendOtp(phoneNumber, simulateStage) {
     const url = `${BASE_URL}/send-otp`;
@@ -99,8 +99,80 @@ export async function panDetailsApi({
     } catch (error) {
         console.error('There was an error with the request:', error);
         return {
-            error: "unable to send otp",
+            error: "unable to update pan details",
             msg: error?.message,
         }
     }
 }
+
+export async function aadhaarDetailsApi({
+   aadhaarNumber,
+   phoneNumber
+}) {
+    const url = `${BASE_URL}/update-details?stage=2`
+    const payload = {
+        aadhaarNumber,
+        phoneNumber
+
+    };
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('There was an error with the request:', error);
+        return {
+            error: "unable to update aadhaar details",
+            msg: error?.message,
+        }
+    }
+}
+
+
+export async function additionalDetailsApi({
+    email,
+    salary,
+    employmentType,
+    phoneNumber
+ }) {
+     const url = `${BASE_URL}/update-details?stage=3`
+     const payload = {
+        PersonalEmailId: email,
+        MonthlySalary: salary,
+        EmploymentType : employmentType,
+        phoneNumber
+     };
+     try {
+         const response = await fetch(url, {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json'
+             },
+             body: JSON.stringify(payload)
+         });
+ 
+         if (!response.ok) {
+             throw new Error('Network response was not ok');
+         }
+         const data = await response.json();
+         return data;
+ 
+     } catch (error) {
+         console.error('There was an error with the request:', error);
+         return {
+             error: "unable to update aadhaar details",
+             msg: error?.message,
+         }
+     }
+ }

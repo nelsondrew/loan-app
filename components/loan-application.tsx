@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { panDetailsApi, sendOtp, verifyOtp } from "@/api"
+import { aadhaarDetailsApi, additionalDetailsApi, panDetailsApi, sendOtp, verifyOtp } from "@/api"
 import AadharMobileInput from './loan-application-components/aadhar-mobile'
 import PanDetailsInput from './loan-application-components/pan-details'
 import { ApplicantDetails } from '@/types'
@@ -94,12 +94,17 @@ export default function LoanApplication() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!aadhaarRegex.test(aadhaarNumber)) {
       setAadhaarError(true)
       return
     }
+    const result = await aadhaarDetailsApi({
+      aadhaarNumber,
+      phoneNumber: mobileNumber
+    });
+    console.log(result);
     setAadhaarError(false)
     setShowAdditionalDetails(true)
   }
@@ -228,7 +233,7 @@ export default function LoanApplication() {
     e.stopPropagation();
   }
 
-  const handleAdditionalDetailsSubmit = (e: React.FormEvent) => {
+  const handleAdditionalDetailsSubmit =  async (e: React.FormEvent) => {
     e.preventDefault()
     let hasError = false
 
@@ -241,8 +246,15 @@ export default function LoanApplication() {
       setSalaryError(true)
       hasError = true
     }
-
-    if (hasError) return
+  
+    if (hasError) return;
+    const result = await additionalDetailsApi({
+      email,
+      employmentType,
+      salary,
+      phoneNumber: mobileNumber
+    });
+    console.log(result);
     setShowAdditionalDetails(false);
     setShowWorkDetails(true)
   }
@@ -256,16 +268,29 @@ export default function LoanApplication() {
   }) => {
     // if the stage value is 1
     // then we have the pan details and we should go to stage 1
-    if (stage === 1) {
+    const executeStageSteps = () => {
+      if (stage === 0) return;
       setIsPhoneVerified(true);
       setIsPanValid(true);
       setPanName(applicantDetails.panName);
       // @ts-ignore
       setDateOfBirth(new Date(applicantDetails.dob));
       setShowAadhaar(true);
-    }
+      if (stage === 1) return;
+      setAadhaarError(false)
+      setShowAdditionalDetails(true);
+      setAadhaarNumber(applicantDetails.aadharNumber);
+      if (stage === 2) return;
+      setShowAdditionalDetails(false);
+      setShowWorkDetails(true);
+      if(stage === 3) return;
+    };
+
+    executeStageSteps();
     setIsLoading(false);
+
   }
+
 
   return (
     <div className="min-h-screen bg-white">
