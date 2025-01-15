@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080'
+const BASE_URL = 'https://nodejs-gcp-app-kr63km7dxa-uc.a.run.app'
 
 export async function sendOtp(phoneNumber, simulateStage) {
     const url = `${BASE_URL}/send-otp`;
