@@ -1,6 +1,6 @@
 const BASE_URL = 'https://nodejs-gcp-app-kr63km7dxa-uc.a.run.app'
 
-export async function sendOtp(phoneNumber) {
+export async function sendOtp(phoneNumber, simulateStage) {
     const url = `${BASE_URL}/send-otp`;
 
     const payload = {
@@ -19,8 +19,10 @@ export async function sendOtp(phoneNumber) {
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-
         const data = await response.json();
+        const stage = data?.stage;
+        const applicantDetails = data?.applicantDetails;
+        simulateStage({stage,applicantDetails})
         console.log(data);  // Handle the response data (e.g., OTP response)
         return data;
 
@@ -62,6 +64,43 @@ export async function verifyOtp(phoneNumber, otp) {
         return {
             error: "otp couldnt be verified",
             message: error?.message,
+        }
+    }
+}
+
+export async function panDetailsApi({
+    panNumber,
+    panName,
+    dateOfBirth,
+    phoneNumber
+}) {
+    const url = `${BASE_URL}/update-details?stage=1`
+    const payload = {
+        panNumber,
+        panName,
+        dateOfBirth,
+        phoneNumber
+    };
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('There was an error with the request:', error);
+        return {
+            error: "unable to send otp",
+            msg: error?.message,
         }
     }
 }

@@ -16,9 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { sendOtp, verifyOtp } from "@/api"
+import { panDetailsApi, sendOtp, verifyOtp } from "@/api"
 import AadharMobileInput from './loan-application-components/aadhar-mobile'
 import PanDetailsInput from './loan-application-components/pan-details'
+import { ApplicantDetails } from '@/types'
 
 const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const aadhaarRegex = /^\d{12}$/;
@@ -77,9 +78,17 @@ export default function LoanApplication() {
     setIsPanValid(isValidPAN(panNumber))
   }, [panNumber])
 
-  const handleProceed = (e: React.FormEvent) => {
+  const handleProceed = async (e: React.FormEvent) => {
+    // pan details handler , call stage 1 api 
     e.preventDefault()
     if (isPhoneVerified && isPanValid && panName && dateOfBirth && agreed) {
+      const result = await panDetailsApi({
+        panName,
+        panNumber,
+        dateOfBirth,
+        phoneNumber: mobileNumber
+      });
+      console.log(result);
       setShowAadhaar(true)
     }
   }
@@ -237,6 +246,25 @@ export default function LoanApplication() {
     setShowWorkDetails(true)
   }
 
+  const simulateStage = ({
+    stage = 0,
+    applicantDetails,
+  }: {
+    stage : number;
+    applicantDetails : ApplicantDetails
+  }) => {
+    // if the stage value is 1
+    // then we have the pan details and we should go to stage 1
+    if(stage === 1) {
+      setIsPhoneVerified(true);
+      setIsPanValid(true);
+      setPanName(applicantDetails.panName);
+      // @ts-ignore
+      setDateOfBirth(new Date(applicantDetails.dob));
+      setShowAadhaar(true);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="p-4 flex items-center justify-between border-b">
@@ -303,6 +331,7 @@ export default function LoanApplication() {
                 showWorkDetails={showWorkDetails}
                 handleOTPVerify={handleOTPVerify}
                 setIsPhoneVerified={setIsPhoneVerified}
+                simulateStage={simulateStage}
               />
               <PanDetailsInput
                 showAadhaar={showAadhaar}

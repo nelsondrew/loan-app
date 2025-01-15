@@ -13,6 +13,7 @@ type AadharMobileInputProps = {
   showWorkDetails: boolean;
   setShowOTP: Dispatch<SetStateAction<boolean>>;
   setIsPhoneVerified: Dispatch<SetStateAction<boolean>>;
+  simulateStage: Function;
 }
 
 const AadharMobileInput = ({
@@ -23,6 +24,7 @@ const AadharMobileInput = ({
   showOTP = false,
   showWorkDetails = false,
   setIsPhoneVerified = () => { },
+  simulateStage = () => {},
 }: AadharMobileInputProps) => {
   const [mobileError, setMobileError] = useState(null);
   const [otpError, setOtpError] = useState(null);
@@ -35,7 +37,7 @@ const AadharMobileInput = ({
 
   const handleShowOTP = useCallback(async () => {
     if (mobileNumber.length === 10 && !isPhoneVerified) {
-      const result = await sendOtp(`+91${mobileNumber}`);
+      const result = await sendOtp(`+91${mobileNumber}`, simulateStage);
       if (result?.error) {
         setMobileError(result?.error);
         return;
