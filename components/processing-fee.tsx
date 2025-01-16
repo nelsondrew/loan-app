@@ -9,6 +9,7 @@ import { ProgressSteps } from './loan-application/ProgressSteps'
 import Image from 'next/image'
 
 export default function ProcessingFee({ paymentData }) {
+    console.log(paymentData)
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [paymentSuccess, setPaymentSuccess] = useState(false); // New state to track payment success

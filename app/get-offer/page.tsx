@@ -6,22 +6,24 @@ import { useState } from 'react'
 export default function GetOffer({
   searchParams
 }) {
- const { phoneNumber = '' , email = '' , customerId = '' , amount = ''}= searchParams.data ? JSON.parse(decodeURIComponent(searchParams.data)) : null
- 
- const [offerStage, setOfferStage] = useState(1);
+  const { phoneNumber = '', email = '', customerId = '', amount = '' } = searchParams.data ? JSON.parse(decodeURIComponent(searchParams.data)) : null
 
- if(offerStage === 1) {
-   return <GetOfferPage setOfferStage={setOfferStage}/>
- }
+  const [offerStage, setOfferStage] = useState(1);
 
- if(offerStage === 2) {
-  return <ProcessingFee paymentData={
-    phoneNumber,
-    email,
-    customerId,
-    amount
-  }/>
- }
+  if (offerStage === 1) {
+    return <GetOfferPage setOfferStage={setOfferStage} />
+  }
+
+  if (offerStage === 2) {
+    return <ProcessingFee paymentData={{
+      phoneNumber,
+      email,
+      customerId,
+      amount
+    }
+
+    } />
+  }
 
 }
 
