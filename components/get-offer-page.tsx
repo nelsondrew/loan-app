@@ -1,18 +1,35 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { ProgressSteps } from './loan-application/ProgressSteps'
 import { Sparkles, ChevronRight } from 'lucide-react'
+import LottiePlayer from './offer-lottie-player'
+import animationData from "../animations/confetti.json"
 
 export default function GetOfferPage() {
   const router = useRouter()
   const [loanAmount] = useState(100000) // This could be fetched from an API or passed as a prop
 
+  const [showConfetti, setShowConfetti] = useState(true);
+
+  // Hide confetti animation after 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => setShowConfetti(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white">
+       {/* Confetti Lottie Animation */}
+       {showConfetti && (
+        <div className="absolute inset-0 z-50 pointer-events-none">
+          <LottiePlayer animationData={animationData} fullScreen />
+        </div>
+      )}
       <div className="p-4 flex items-center justify-between border-b">
         <Image
           src="/aasra_vikas_small.png"
