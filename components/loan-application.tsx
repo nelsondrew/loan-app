@@ -291,6 +291,10 @@ export default function LoanApplication() {
     // if the stage value is 1
     // then we have the pan details and we should go to stage 1
     const executeStageSteps = () => {
+      if(stage === 4) {
+        router.push('/get-offer');
+        return;
+      }
       if (stage === 0) return;
       setIsPhoneVerified(true);
       setIsPanValid(true);
@@ -306,9 +310,7 @@ export default function LoanApplication() {
       setShowAdditionalDetails(false);
       setShowWorkDetails(true);
       if(stage === 3) return;
-      if(stage === 4) {
-        router.push('/get-offer')
-      }
+
     };
 
     executeStageSteps();
