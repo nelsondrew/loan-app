@@ -93,18 +93,35 @@ export default function ProcessingFee() {
     // Listen for the result from the parent
     useEffect(() => {
         const handleMessageFromParent = (event) => {
-         
             const result = event.data;
-            console.log("event result" , result)
-            setLoading(false);
-            if (result.success) {
-                console.log(result , "received result")
-                // Success message or redirect logic here
-                setError(null);
-            } else {
-                setError('Payment failed.');
+            console.log("Event received:", result);
+      
+             // Stop the loading spinner or similar UI elements
+      
+            if (result.event === 'payment-completed') {
+              switch (result.status) {
+                case 'success':
+                  console.log('Payment successful!');
+                  setError(null); // Clear any previous errors
+                  setLoading(false);
+                  // Implement any success logic here (e.g., redirect, display success message)
+                  break;
+                case 'failed':
+                  console.log('Payment failed:', result.errorMessage);
+                  setError('Payment failed. Please try again.');
+                  setLoading(false);
+                  // Handle the failure (e.g., retry logic, display failure message)
+                  break;
+                case 'redirect':
+                  console.log('Payment redirected.');
+                  setError(null);
+                  setLoading(false);
+                  // Handle redirection (e.g., notify user that payment is being processed)
+                  break;
+              }
             }
-        }
+          };
+      
  
 
         window.addEventListener('message', handleMessageFromParent);
