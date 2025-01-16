@@ -296,6 +296,7 @@ export default function LoanApplication() {
           phoneNumber: applicantDetails.phoneNumber,  // Replace with actual data
           email: applicantDetails.PersonalEmailId,  // Replace with actual data
           customerId: applicantDetails.userId,  // Replace with actual data
+          stage: stage,
           amount: 99  // The payment amount
         };
         router.push(`/get-offer?data=${encodeURIComponent(JSON.stringify(paymentData))}`)

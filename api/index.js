@@ -22,7 +22,7 @@ export async function sendOtp(phoneNumber, simulateStage) {
         const data = await response.json();
         const stage = data?.stage;
         const applicantDetails = data?.applicantDetails;
-        simulateStage({stage,applicantDetails})
+        simulateStage({ stage, applicantDetails })
         console.log(data);  // Handle the response data (e.g., OTP response)
         return data;
 
@@ -106,8 +106,8 @@ export async function panDetailsApi({
 }
 
 export async function aadhaarDetailsApi({
-   aadhaarNumber,
-   phoneNumber
+    aadhaarNumber,
+    phoneNumber
 }) {
     const url = `${BASE_URL}/update-details?stage=2`
     const payload = {
@@ -145,37 +145,37 @@ export async function additionalDetailsApi({
     salary,
     employmentType,
     phoneNumber
- }) {
-     const url = `${BASE_URL}/update-details?stage=3`
-     const payload = {
+}) {
+    const url = `${BASE_URL}/update-details?stage=3`
+    const payload = {
         PersonalEmailId: email,
         MonthlySalary: salary,
-        EmploymentType : employmentType,
+        EmploymentType: employmentType,
         phoneNumber
-     };
-     try {
-         const response = await fetch(url, {
-             method: 'POST',
-             headers: {
-                 'Content-Type': 'application/json'
-             },
-             body: JSON.stringify(payload)
-         });
- 
-         if (!response.ok) {
-             throw new Error('Network response was not ok');
-         }
-         const data = await response.json();
-         return data;
- 
-     } catch (error) {
-         console.error('There was an error with the request:', error);
-         return {
-             error: "unable to update aadhaar details",
-             msg: error?.message,
-         }
-     }
- }
+    };
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('There was an error with the request:', error);
+        return {
+            error: "unable to update aadhaar details",
+            msg: error?.message,
+        }
+    }
+}
 
 export async function workDetailsApi({
     workemailAddress,
@@ -186,11 +186,11 @@ export async function workDetailsApi({
     currentOngoingLoans,
     stayingIn,
     phoneNumber,
- }) {
-    const [MonthOneSalarySlipUrl,MonthTwoSalarySlipUrl,MonthThreeSalarySlipUrl] = uploadUrls;
+}) {
+    const [MonthOneSalarySlipUrl, MonthTwoSalarySlipUrl, MonthThreeSalarySlipUrl] = uploadUrls;
 
-     const url = `${BASE_URL}/update-details?stage=4`
-     const payload = {
+    const url = `${BASE_URL}/update-details?stage=4`
+    const payload = {
         MonthOneSalarySlipUrl,
         MonthTwoSalarySlipUrl,
         MonthThreeSalarySlipUrl,
@@ -201,61 +201,92 @@ export async function workDetailsApi({
         WorkEmailAddress: workemailAddress,
         StayingIn: stayingIn,
         phoneNumber,
-     };
-     try {
-         const response = await fetch(url, {
-             method: 'POST',
-             headers: {
-                 'Content-Type': 'application/json'
-             },
-             body: JSON.stringify(payload)
-         });
- 
-         if (!response.ok) {
-             throw new Error('Network response was not ok');
-         }
-         const data = await response.json();
-         return data;
- 
-     } catch (error) {
-         console.error('There was an error with the request:', error);
-         return {
-             error: "unable to update aadhaar details",
-             msg: error?.message,
-         }
-     }
- }
+    };
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
- export const createCashfreeOrder = async ({ amount, customerEmail, customerPhone, customerId, returnUrl }) => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('There was an error with the request:', error);
+        return {
+            error: "unable to update aadhaar details",
+            msg: error?.message,
+        }
+    }
+}
+
+
+export async function verifyPaymentApi({
+    phoneNumber
+}) {
+    const url = `${BASE_URL}/update-details?stage=5`
+    const payload = {
+        phoneNumber
+    };
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+
+    } catch (error) {
+        console.error('There was an error with the request:', error);
+        return {
+            error: "unable to update aadhaar details",
+            msg: error?.message,
+        }
+    }
+}
+
+export const createCashfreeOrder = async ({ amount, customerEmail, customerPhone, customerId, returnUrl }) => {
     const url = `${BASE_URL}/create-order`
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount,
-          customerEmail,
-          customerPhone,
-          customerId,
-          returnUrl,
-        }),
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create Cashfree order');
-      }
-  
-      const result = await response.json();
-      return result;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount,
+                customerEmail,
+                customerPhone,
+                customerId,
+                returnUrl,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create Cashfree order');
+        }
+
+        const result = await response.json();
+        return result;
     } catch (error) {
-      console.error('Error creating Cashfree order:', error.message);
-      return {
-        error: "unable to update aadhaar details",
-        msg: error?.message,
-      }
+        console.error('Error creating Cashfree order:', error.message);
+        return {
+            error: "unable to update aadhaar details",
+            msg: error?.message,
+        }
     }
-  };
-  
+};

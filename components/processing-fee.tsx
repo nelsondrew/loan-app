@@ -7,8 +7,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Info, Sparkles, CheckCircle, CreditCard } from 'lucide-react'
 import { ProgressSteps } from './loan-application/ProgressSteps'
 import Image from 'next/image'
+import { verifyPaymentApi } from '@/api'
 
-export default function ProcessingFee({ paymentData }) {
+export default function ProcessingFee({ paymentData , setOfferStage }) {
     console.log(paymentData)
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -26,7 +27,7 @@ export default function ProcessingFee({ paymentData }) {
 
     // Listen for the result from the parent
     useEffect(() => {
-        const handleMessageFromParent = (event) => {
+        const handleMessageFromParent = async (event) => {
             const result = event.data;
 
             if (result.event === 'payment-completed') {
@@ -36,6 +37,14 @@ export default function ProcessingFee({ paymentData }) {
                         setError(null); // Clear any previous errors
                         setLoading(false);
                         setPaymentSuccess(true); // Set payment success
+                        const resultFromApi = await verifyPaymentApi({
+                            phoneNumber : paymentData?.phoneNumber
+                        });
+                        if(result?.error) {
+                            console.error("Unable to update user stage");
+                            return;
+                        }
+                        setOfferStage(3);
                         // You can implement any other success logic here (e.g., redirect, show success modal)
                         break;
                     case 'failed':
@@ -50,6 +59,14 @@ export default function ProcessingFee({ paymentData }) {
                         setError(null);
                         setLoading(false);
                         setPaymentSuccess(false); // Reset if redirected
+                        const resultPayment = await verifyPaymentApi({
+                            phoneNumber : paymentData?.phoneNumber
+                        });
+                        if(result?.error) {
+                            console.error("Unable to update user stage");
+                            return;
+                        }
+                        setOfferStage(3);
                         // Handle redirection (e.g., notify user that payment is being processed)
                         break;
                 }
