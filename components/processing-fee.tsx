@@ -7,86 +7,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Info, Sparkles, CheckCircle, CreditCard } from 'lucide-react'
 import { ProgressSteps } from './loan-application/ProgressSteps'
 import Image from 'next/image'
-const PRODUCTION = 'production'
 
 export default function ProcessingFee() {
-    const router = useRouter()
-    // const [cashfree, setCashfree] = useState(null)
-    // const [loading, setLoading] = useState(false)
-    // const [error, setError] = useState<null | string>(null)
-
-    // // Initialize the CashFree SDK
-    // const initializeSDK = async () => {
-    //     try {
-    //         let cashfreeObj = await load({
-    //             mode: PRODUCTION,
-    //         })
-    //         setCashfree(cashfreeObj)
-    //     } catch (err) {
-    //         console.error("Error initializing Cashfree SDK", err)
-    //         // @ts-ignore
-    //         setError("Failed to load payment SDK.")
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     initializeSDK()
-    // }, [])
-
-    // // Handle payment
-    // const handlePayment = async () => {
-    //     if (!cashfree) {
-    //         setError("Cashfree SDK not initialized yet.")
-    //         return
-    //     }
-
-    //     setLoading(true)
-    //     try {
-    //         // Call the createCashfreeOrder API to create a payment session
-    //         const { paymentSessionId } = await createCashfreeOrder({
-    //             amount: 1,
-    //             customerEmail: "testuser@example.com",
-    //             customerPhone: "9876543210",
-    //             customerId:  "CUST12345",
-    //             returnUrl: "https://aaasravikas.com/payment-success"
-    //         })
-
-    //         // Set the checkout options
-    //         const checkoutOptions = {
-    //             paymentSessionId,
-    //             redirectTarget: "_modal", // Use modal for inline checkout
-    //         }
-
-    //         // Trigger the Cashfree payment checkout
-    //         cashfree.checkout(checkoutOptions).then((result) => {
-    //             if (result.error) {
-    //                 setError(result.error)
-    //                 setLoading(false)
-    //             } else if (result.redirect) {
-    //                 console.log("Payment will be redirected.")
-    //                 setLoading(false)
-    //             } else if (result.paymentDetails) {
-    //                 if (result.paymentDetails.paymentMessage === "Success") {
-    //                     setLoading(false)
-    //                     router.push('/verification-status')
-    //                 }
-    //             }
-    //         })
-    //     } catch (err) {
-    //         setError("Payment processing failed.")
-    //         setLoading(false)
-    //     }
-    // }
-
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [paymentSuccess, setPaymentSuccess] = useState(false); // New state to track payment success
 
     // Send message to parent to initiate payment
     const handlePayment = () => {
-
         setLoading(true);
-        console.log("window top message sent")
+        console.log("window top message sent");
         window.top.postMessage('start-payment', "*");
     };
 
@@ -94,35 +24,33 @@ export default function ProcessingFee() {
     useEffect(() => {
         const handleMessageFromParent = (event) => {
             const result = event.data;
-            console.log("Event received:", result);
-      
-             // Stop the loading spinner or similar UI elements
-      
+
             if (result.event === 'payment-completed') {
-              switch (result.status) {
-                case 'success':
-                  console.log('Payment successful!');
-                  setError(null); // Clear any previous errors
-                  setLoading(false);
-                  // Implement any success logic here (e.g., redirect, display success message)
-                  break;
-                case 'failed':
-                  console.log('Payment failed:', result.errorMessage);
-                  setError('Payment failed. Please try again.');
-                  setLoading(false);
-                  // Handle the failure (e.g., retry logic, display failure message)
-                  break;
-                case 'redirect':
-                  console.log('Payment redirected.');
-                  setError(null);
-                  setLoading(false);
-                  // Handle redirection (e.g., notify user that payment is being processed)
-                  break;
-              }
+                switch (result.status) {
+                    case 'success':
+                        console.log('Payment successful!');
+                        setError(null); // Clear any previous errors
+                        setLoading(false);
+                        setPaymentSuccess(true); // Set payment success
+                        // You can implement any other success logic here (e.g., redirect, show success modal)
+                        break;
+                    case 'failed':
+                        console.log('Payment failed:', result.errorMessage);
+                        setError('Payment failed. Please try again.');
+                        setLoading(false);
+                        setPaymentSuccess(false); // Reset payment success if failed
+                        // Handle the failure (e.g., retry logic, display failure message)
+                        break;
+                    case 'redirect':
+                        console.log('Payment redirected.');
+                        setError(null);
+                        setLoading(false);
+                        setPaymentSuccess(false); // Reset if redirected
+                        // Handle redirection (e.g., notify user that payment is being processed)
+                        break;
+                }
             }
-          };
-      
- 
+        };
 
         window.addEventListener('message', handleMessageFromParent);
         return () => {
@@ -194,11 +122,16 @@ export default function ProcessingFee() {
                         className="w-full text-[17px] py-6 bg-[#194DBE] hover:bg-[#194DBE]/90"
                         size="lg"
                         onClick={handlePayment}
-                        disabled={loading}
+                        disabled={loading || paymentSuccess} // Disable if payment is successful
                     >
                         {loading ? (
                             <span className="flex items-center">
                                 <span className="loader mr-2" /> Processing...
+                            </span>
+                        ) : paymentSuccess ? (
+                            <span className="flex items-center">
+                                <CheckCircle className="w-5 h-5 mr-2" />
+                                Payment Successful
                             </span>
                         ) : (
                             <>
@@ -216,5 +149,5 @@ export default function ProcessingFee() {
                 </CardContent>
             </Card>
         </div>
-    )
+    );
 }
