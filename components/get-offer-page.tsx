@@ -6,8 +6,11 @@ import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { ProgressSteps } from './loan-application/ProgressSteps'
 import { Sparkles, ChevronRight } from 'lucide-react'
-import LottiePlayer from './offer-lottie-player'
 import animationData from "../animations/confetti.json"
+import dynamic from 'next/dynamic'
+
+const LottiePlayer = dynamic(() => import('./offer-lottie-player'), { ssr: false });
+
 
 export default function GetOfferPage() {
   const router = useRouter()
