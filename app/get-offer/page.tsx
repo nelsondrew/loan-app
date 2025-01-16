@@ -11,6 +11,10 @@ export default function GetOffer({
   const [offerStage, setOfferStage] = useState(1);
 
 
+  if (offerStage === 3 || stage === 5) {
+    return <VerificationStatus />
+  }
+
   if (offerStage === 1) {
     return <GetOfferPage setOfferStage={setOfferStage} />
   }
@@ -27,9 +31,7 @@ export default function GetOffer({
       />)
   }
 
-  if (offerStage === 3 || stage === 5) {
-    return <VerificationStatus />
-  }
+
 
 }
 
