@@ -93,9 +93,9 @@ export default function ProcessingFee() {
     // Listen for the result from the parent
     useEffect(() => {
         const handleMessageFromParent = (event) => {
-            debugger;
-            // if (event.origin === window.location.origin) {
+         
             const result = event.data;
+            console.log("event result" , result)
             setLoading(false);
             if (result.success) {
                 console.log(result , "received result")
@@ -105,7 +105,7 @@ export default function ProcessingFee() {
                 setError('Payment failed.');
             }
         }
-        //   };
+ 
 
         window.addEventListener('message', handleMessageFromParent);
         return () => {
