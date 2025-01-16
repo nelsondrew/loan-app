@@ -292,7 +292,13 @@ export default function LoanApplication() {
     // then we have the pan details and we should go to stage 1
     const executeStageSteps = () => {
       if(stage === 4) {
-        router.push('/get-offer');
+        const paymentData = {
+          phoneNumber: applicantDetails.phoneNumber,  // Replace with actual data
+          email: applicantDetails.PersonalEmailId,  // Replace with actual data
+          customerId: applicantDetails.userId,  // Replace with actual data
+          amount: 99  // The payment amount
+        };
+        router.push(`/get-offer?data=${encodeURIComponent(JSON.stringify(paymentData))}`)
         return;
       }
       if (stage === 0) return;

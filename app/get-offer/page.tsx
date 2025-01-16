@@ -3,7 +3,11 @@ import GetOfferPage from '@/components/get-offer-page'
 import ProcessingFee from '@/components/processing-fee'
 import { useState } from 'react'
 
-export default function GetOffer() {
+export default function GetOffer({
+  searchParams
+}) {
+ const { phoneNumber = '' , email = '' , customerId = '' , amount = ''}= searchParams.data ? JSON.parse(decodeURIComponent(searchParams.data)) : null
+ 
  const [offerStage, setOfferStage] = useState(1);
 
  if(offerStage === 1) {
@@ -11,7 +15,12 @@ export default function GetOffer() {
  }
 
  if(offerStage === 2) {
-  return <ProcessingFee/>
+  return <ProcessingFee paymentData={
+    phoneNumber,
+    email,
+    customerId,
+    amount
+  }/>
  }
 
 }

@@ -8,7 +8,7 @@ import { Info, Sparkles, CheckCircle, CreditCard } from 'lucide-react'
 import { ProgressSteps } from './loan-application/ProgressSteps'
 import Image from 'next/image'
 
-export default function ProcessingFee() {
+export default function ProcessingFee({ paymentData }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [paymentSuccess, setPaymentSuccess] = useState(false); // New state to track payment success
@@ -17,7 +17,10 @@ export default function ProcessingFee() {
     const handlePayment = () => {
         setLoading(true);
         console.log("window top message sent");
-        window.top.postMessage('start-payment', "*");
+        window.top.postMessage(
+            { event: 'start-payment', data: paymentData },
+            "*"
+        );
     };
 
     // Listen for the result from the parent
