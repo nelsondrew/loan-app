@@ -291,7 +291,7 @@ export default function LoanApplication() {
     // if the stage value is 1
     // then we have the pan details and we should go to stage 1
     const executeStageSteps = () => {
-      if(stage === 4) {
+      if(stage === 4 || stage === 5) {
         const paymentData = {
           phoneNumber: applicantDetails.phoneNumber,  // Replace with actual data
           email: applicantDetails.PersonalEmailId,  // Replace with actual data
