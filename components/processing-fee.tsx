@@ -7,79 +7,111 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Info, Sparkles, CheckCircle, CreditCard } from 'lucide-react'
 import { ProgressSteps } from './loan-application/ProgressSteps'
 import Image from 'next/image'
-import { load } from "@cashfreepayments/cashfree-js"
-import { createCashfreeOrder } from '@/api'
-
 const PRODUCTION = 'production'
 
 export default function ProcessingFee() {
     const router = useRouter()
-    const [cashfree, setCashfree] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<null | string>(null)
+    // const [cashfree, setCashfree] = useState(null)
+    // const [loading, setLoading] = useState(false)
+    // const [error, setError] = useState<null | string>(null)
 
-    // Initialize the CashFree SDK
-    const initializeSDK = async () => {
-        try {
-            let cashfreeObj = await load({
-                mode: PRODUCTION,
-            })
-            setCashfree(cashfreeObj)
-        } catch (err) {
-            console.error("Error initializing Cashfree SDK", err)
-            // @ts-ignore
-            setError("Failed to load payment SDK.")
-        }
-    }
+    // // Initialize the CashFree SDK
+    // const initializeSDK = async () => {
+    //     try {
+    //         let cashfreeObj = await load({
+    //             mode: PRODUCTION,
+    //         })
+    //         setCashfree(cashfreeObj)
+    //     } catch (err) {
+    //         console.error("Error initializing Cashfree SDK", err)
+    //         // @ts-ignore
+    //         setError("Failed to load payment SDK.")
+    //     }
+    // }
 
+    // useEffect(() => {
+    //     initializeSDK()
+    // }, [])
+
+    // // Handle payment
+    // const handlePayment = async () => {
+    //     if (!cashfree) {
+    //         setError("Cashfree SDK not initialized yet.")
+    //         return
+    //     }
+
+    //     setLoading(true)
+    //     try {
+    //         // Call the createCashfreeOrder API to create a payment session
+    //         const { paymentSessionId } = await createCashfreeOrder({
+    //             amount: 1,
+    //             customerEmail: "testuser@example.com",
+    //             customerPhone: "9876543210",
+    //             customerId:  "CUST12345",
+    //             returnUrl: "https://aaasravikas.com/payment-success"
+    //         })
+
+    //         // Set the checkout options
+    //         const checkoutOptions = {
+    //             paymentSessionId,
+    //             redirectTarget: "_modal", // Use modal for inline checkout
+    //         }
+
+    //         // Trigger the Cashfree payment checkout
+    //         cashfree.checkout(checkoutOptions).then((result) => {
+    //             if (result.error) {
+    //                 setError(result.error)
+    //                 setLoading(false)
+    //             } else if (result.redirect) {
+    //                 console.log("Payment will be redirected.")
+    //                 setLoading(false)
+    //             } else if (result.paymentDetails) {
+    //                 if (result.paymentDetails.paymentMessage === "Success") {
+    //                     setLoading(false)
+    //                     router.push('/verification-status')
+    //                 }
+    //             }
+    //         })
+    //     } catch (err) {
+    //         setError("Payment processing failed.")
+    //         setLoading(false)
+    //     }
+    // }
+
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Send message to parent to initiate payment
+    const handlePayment = () => {
+
+        setLoading(true);
+        console.log("window top message sent")
+        window.top.postMessage('start-payment', "*");
+    };
+
+    // Listen for the result from the parent
     useEffect(() => {
-        initializeSDK()
-    }, [])
-
-    // Handle payment
-    const handlePayment = async () => {
-        if (!cashfree) {
-            setError("Cashfree SDK not initialized yet.")
-            return
-        }
-
-        setLoading(true)
-        try {
-            // Call the createCashfreeOrder API to create a payment session
-            const { paymentSessionId } = await createCashfreeOrder({
-                amount: 1,
-                customerEmail: "testuser@example.com",
-                customerPhone: "9876543210",
-                customerId:  "CUST12345",
-                returnUrl: "https://aaasravikas.com/payment-success"
-            })
-
-            // Set the checkout options
-            const checkoutOptions = {
-                paymentSessionId,
-                redirectTarget: "_modal", // Use modal for inline checkout
+        const handleMessageFromParent = (event) => {
+            debugger;
+            // if (event.origin === window.location.origin) {
+            const result = event.data;
+            setLoading(false);
+            if (result.success) {
+                console.log(result , "received result")
+                // Success message or redirect logic here
+                setError(null);
+            } else {
+                setError('Payment failed.');
             }
-
-            // Trigger the Cashfree payment checkout
-            cashfree.checkout(checkoutOptions).then((result) => {
-                if (result.error) {
-                    setError(result.error)
-                    setLoading(false)
-                } else if (result.redirect) {
-                    console.log("Payment will be redirected.")
-                    setLoading(false)
-                } else if (result.paymentDetails) {
-                    if (result.paymentDetails.paymentMessage === "Success") {
-                        setLoading(false)
-                        router.push('/verification-status')
-                    }
-                }
-            })
-        } catch (err) {
-            setError("Payment processing failed.")
-            setLoading(false)
         }
-    }
+        //   };
+
+        window.addEventListener('message', handleMessageFromParent);
+        return () => {
+            window.removeEventListener('message', handleMessageFromParent);
+        };
+    }, []);
 
     return (
         <div className="min-h-screen relative overflow-hidden">
@@ -145,7 +177,7 @@ export default function ProcessingFee() {
                         className="w-full text-[17px] py-6 bg-[#194DBE] hover:bg-[#194DBE]/90"
                         size="lg"
                         onClick={handlePayment}
-                        disabled={loading || !cashfree}
+                        disabled={loading}
                     >
                         {loading ? (
                             <span className="flex items-center">
