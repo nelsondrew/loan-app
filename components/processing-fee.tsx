@@ -1,0 +1,171 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Info, Sparkles, CheckCircle, CreditCard } from 'lucide-react'
+import { ProgressSteps } from './loan-application/ProgressSteps'
+import Image from 'next/image'
+import { load } from "@cashfreepayments/cashfree-js"
+import { createCashfreeOrder } from '@/api'
+
+const PRODUCTION = 'production'
+
+export default function ProcessingFee() {
+    const router = useRouter()
+    const [cashfree, setCashfree] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<null | string>(null)
+
+    // Initialize the CashFree SDK
+    const initializeSDK = async () => {
+        try {
+            let cashfreeObj = await load({
+                mode: PRODUCTION,
+            })
+            setCashfree(cashfreeObj)
+        } catch (err) {
+            console.error("Error initializing Cashfree SDK", err)
+            // @ts-ignore
+            setError("Failed to load payment SDK.")
+        }
+    }
+
+    useEffect(() => {
+        initializeSDK()
+    }, [])
+
+    // Handle payment
+    const handlePayment = async () => {
+        if (!cashfree) {
+            setError("Cashfree SDK not initialized yet.")
+            return
+        }
+
+        setLoading(true)
+        try {
+            // Call the createCashfreeOrder API to create a payment session
+            const { paymentSessionId } = await createCashfreeOrder({
+                amount: 1,
+                customerEmail: "testuser@example.com",
+                customerPhone: "9876543210",
+                customerId:  "CUST12345",
+                returnUrl: "https://aaasravikas.com/payment-success"
+            })
+
+            // Set the checkout options
+            const checkoutOptions = {
+                paymentSessionId,
+                redirectTarget: "_modal", // Use modal for inline checkout
+            }
+
+            // Trigger the Cashfree payment checkout
+            cashfree.checkout(checkoutOptions).then((result) => {
+                if (result.error) {
+                    setError(result.error)
+                    setLoading(false)
+                } else if (result.redirect) {
+                    console.log("Payment will be redirected.")
+                    setLoading(false)
+                } else if (result.paymentDetails) {
+                    if (result.paymentDetails.paymentMessage === "Success") {
+                        setLoading(false)
+                        router.push('/verification-status')
+                    }
+                }
+            })
+        } catch (err) {
+            setError("Payment processing failed.")
+            setLoading(false)
+        }
+    }
+
+    return (
+        <div className="min-h-screen relative overflow-hidden">
+            <div className="p-4 flex items-center justify-between border-b">
+                <Image
+                    src="/aasra_vikas_small.png"
+                    alt="Aasra Vikas Logo"
+                    width={120}
+                    height={40}
+                    className="h-10 w-auto"
+                />
+            </div>
+            <ProgressSteps currentStep={2} />
+
+            <Card className="max-w-md mx-auto border-0 shadow-none">
+                <CardContent className="pt-6 px-4 pb-8 text-center">
+                    <div className="flex justify-center items-center mb-6">
+                        <Sparkles className="w-8 h-8 text-[#194DBE] mr-2" />
+                        <h1 className="text-[28px] font-bold text-[#194DBE]">
+                            You're One Step Away!
+                        </h1>
+                    </div>
+
+                    <p className="text-gray-600 text-[17px] mb-8">
+                        Complete the verification process to get your loan of ₹1,00,000 sanctioned.
+                    </p>
+
+                    <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
+                        <div className="flex items-center mb-4">
+                            <CheckCircle className="w-6 h-6 text-[#194DBE] mr-2" />
+                            <h2 className="text-[20px] font-semibold text-gray-700 text-left">
+                                Payment Details:
+                            </h2>
+                        </div>
+                        <div className="space-y-4 mb-6 text-left">
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600">Loan Amount</span>
+                                <span className="font-semibold">₹1,00,000</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600">Processing Fee</span>
+                                <span className="font-semibold">₹99</span>
+                            </div>
+                            <div className="border-t pt-2">
+                                <div className="flex justify-between items-center">
+                                    <span className="font-semibold">Total Payable Now</span>
+                                    <span className="font-semibold text-[#194DBE]">₹99</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-4 rounded-lg mb-8">
+                        <div className="flex items-start">
+                            <Info className="h-5 w-5 text-[#194DBE] mt-0.5 mr-2 flex-shrink-0" />
+                            <p className="text-sm text-gray-600 text-left">
+                                The processing fee of ₹99 is required for the verification of documents and is an important part of the loan sanctioning process.
+                            </p>
+                        </div>
+                    </div>
+
+                    <Button
+                        className="w-full text-[17px] py-6 bg-[#194DBE] hover:bg-[#194DBE]/90"
+                        size="lg"
+                        onClick={handlePayment}
+                        disabled={loading || !cashfree}
+                    >
+                        {loading ? (
+                            <span className="flex items-center">
+                                <span className="loader mr-2" /> Processing...
+                            </span>
+                        ) : (
+                            <>
+                                <CreditCard className="w-5 h-5 mr-2" />
+                                Pay ₹99 & Continue
+                            </>
+                        )}
+                    </Button>
+
+                    {error && (
+                        <p className="mt-4 text-red-600 text-sm">
+                            {error}
+                        </p>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
+    )
+}

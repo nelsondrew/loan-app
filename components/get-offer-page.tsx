@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,11 @@ import dynamic from 'next/dynamic'
 const LottiePlayer = dynamic(() => import('./offer-lottie-player'), { ssr: false });
 
 
-export default function GetOfferPage() {
+export default function GetOfferPage({
+  setOfferStage = () => {},
+} : {
+  setOfferStage: Dispatch<SetStateAction<number>>
+}) {
   const router = useRouter()
   const [loanAmount] = useState(100000) // This could be fetched from an API or passed as a prop
 
@@ -27,8 +31,8 @@ export default function GetOfferPage() {
 
   return (
     <div className="relative min-h-screen bg-white">
-       {/* Confetti Lottie Animation */}
-       {showConfetti && (
+      {/* Confetti Lottie Animation */}
+      {showConfetti && (
         <div className="absolute inset-0 z-50 pointer-events-none">
           <LottiePlayer animationData={animationData} fullScreen />
         </div>
@@ -71,10 +75,10 @@ export default function GetOfferPage() {
         </div>
 
         <Button
-          onClick={() => router.push('/loan-details')}
+          onClick={() => setOfferStage(2)}
           className="w-full bg-[#194DBE] hover:bg-[#194DBE]/90 text-white rounded-full py-6 text-lg"
         >
-          View Loan Details
+          Get the money credited
           <ChevronRight className="ml-2 h-5 w-5" />
         </Button>
       </div>

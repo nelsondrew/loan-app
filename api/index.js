@@ -225,3 +225,37 @@ export async function workDetailsApi({
          }
      }
  }
+
+ export const createCashfreeOrder = async ({ amount, customerEmail, customerPhone, customerId, returnUrl }) => {
+    const url = `${BASE_URL}/create-order`
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount,
+          customerEmail,
+          customerPhone,
+          customerId,
+          returnUrl,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create Cashfree order');
+      }
+  
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error('Error creating Cashfree order:', error.message);
+      return {
+        error: "unable to update aadhaar details",
+        msg: error?.message,
+      }
+    }
+  };
+  
