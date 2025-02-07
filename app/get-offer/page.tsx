@@ -23,9 +23,9 @@ export default function GetOffer({
     return (
       <ProcessingFee paymentData={{
         phoneNumber,
-        email,
+        email : email || "test@test.com",
         customerId,
-        amount
+        amount: amount || 99
       }}
         setOfferStage={setOfferStage}
       />)

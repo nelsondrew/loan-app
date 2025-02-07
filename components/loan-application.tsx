@@ -152,6 +152,8 @@ export default function LoanApplication() {
     }
   }
 
+  const [applicantDetails, setApplicantDetails] = useState({});
+
   const formatSalary = (value: string) => {
     const number = value.replace(/[^0-9]/g, '')
     if (number === '') return ''
@@ -205,7 +207,17 @@ export default function LoanApplication() {
       stayingIn: propertyStatus,
       phoneNumber: mobileNumber,
     });
-    router.push('/get-offer')
+
+    const paymentData = {
+      phoneNumber: mobileNumber,  // Replace with actual data
+      email: workEmail,  // Replace with actual data
+      customerId: 'user-id',  // Replace with actual data
+      stage: 4,
+      amount: 99  // The payment amount
+    };
+
+    router.push(`/get-offer?data=${encodeURIComponent(JSON.stringify(paymentData))}`)
+
     // Handle final submission
   }
   
@@ -290,6 +302,7 @@ export default function LoanApplication() {
   }) => {
     // if the stage value is 1
     // then we have the pan details and we should go to stage 1
+    setApplicantDetails(applicantDetails)
     const executeStageSteps = () => {
       if(stage === 4 || stage === 5) {
         const paymentData = {
