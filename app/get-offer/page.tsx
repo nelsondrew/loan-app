@@ -25,7 +25,7 @@ export default function GetOffer({
         phoneNumber,
         email : email || "test@test.com",
         customerId,
-        amount: amount || 99
+        amount: 99
       }}
         setOfferStage={setOfferStage}
       />)
